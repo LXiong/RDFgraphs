@@ -1,8 +1,10 @@
+package test;
+
 /**
  * This is a test for BloomFilter.java
  * @author gsong
  */
-package test;
+
 
 import static org.junit.Assert.*;
 
