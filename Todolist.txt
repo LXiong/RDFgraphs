@@ -1,0 +1,5 @@
+- Create a stream with random tuples
+- Read this stream with random tuples
+- Create a query usable for this stream
+- Only store the results of this query
+- ???
