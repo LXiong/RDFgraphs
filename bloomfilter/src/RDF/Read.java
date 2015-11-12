@@ -8,7 +8,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class Read{
@@ -17,6 +22,38 @@ public class Read{
 	 public Read(String filePath){
 		 this.filePath = filePath;
 	}
+         
+    public static void main(String[] argv){
+        streamReadTest();
+    }
+
+    private static void streamReadTest(){
+        try {
+            streamRead("http://localhost/randomtext.php");
+        } catch (IOException ex) {
+            System.out.println(ex);
+        }
+    }
+    
+    /**
+     *
+     * Function to read out a stream of data rather than just a file
+     * @param is: the inputstream
+     */
+    public static void streamRead(String url) throws IOException{
+        URL resource = new URL(url);
+        InputStreamReader is = new InputStreamReader(resource.openStream());
+        BufferedReader br = new BufferedReader( is );
+        StringBuffer text = new StringBuffer();
+        String line = br.readLine();
+        while (  line != null ){
+            text.append( line );
+            line = br.readLine();
+            System.out.println("got line");
+        }     
+        System.out.print(text);
+    }
+         
 	 public static ArrayList<RDFTriple> Reader(String filePath){
 			File file = new File(filePath);
 			BufferedReader reader = null;
@@ -52,11 +89,5 @@ public class Read{
 			}
 			return readList;
 		}
-	 /*public static void main(String[] args){
-		 Read r = new Read("/Users/gsong/Documents/workspace/BloomFilter/src/data/p11.txt");
-		 ArrayList l = Reader(r.filePath);
-		 for(int i=0; i<l.size(); i++){
-			 System.out.println(l.get(i).toString());
-		 }
-	 }*/
+         
 }
