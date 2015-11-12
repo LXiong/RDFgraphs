@@ -8,12 +8,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 public class Read{
@@ -22,12 +19,16 @@ public class Read{
 	 public Read(String filePath){
 		 this.filePath = filePath;
 	}
+
+    private Read() {
+    }
          
     public static void main(String[] argv){
-        streamReadTest();
+        Read r = new Read();
+        r.streamReadTest();
     }
 
-    private static void streamReadTest(){
+    private void streamReadTest(){
         try {
             streamRead("http://localhost/randomtext.php");
         } catch (IOException ex) {
@@ -40,7 +41,7 @@ public class Read{
      * Function to read out a stream of data rather than just a file
      * @param is: the inputstream
      */
-    public static void streamRead(String url) throws IOException{
+    private void streamRead(String url) throws IOException{
         URL resource = new URL(url);
         InputStreamReader is = new InputStreamReader(resource.openStream());
         BufferedReader br = new BufferedReader( is );
@@ -50,6 +51,7 @@ public class Read{
             text.append( line );
             line = br.readLine();
             System.out.println("got line");
+            System.out.flush();
         }     
         System.out.print(text);
     }
