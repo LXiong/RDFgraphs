@@ -19,6 +19,11 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import backtype.storm.utils.Utils;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -26,14 +31,48 @@ import java.util.Random;
 
 public class MainFile {
 	
+	public static BufferedReader reader;
+	
 	public static void main(String[] args) throws Exception{
+		
+		
+		String filePath="./src/data/rdfdata.txt";
+		File file = new File(filePath);
+		reader = null;
+		try{
+			reader = new BufferedReader(new FileReader(file));
+			stormCall();
+				
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			if(reader != null){
+				try{
+					reader.close();
+				}catch(IOException e1){
+					//Do nothing
+				}
+			}
+		}
+		
+		
+	}
+	
+	public static void stormCall() throws Exception
+	{
 		Config config = new Config();
 		config.setDebug(true);
 		
 		TopologyBuilder builder = new TopologyBuilder();
-		builder.setSpout("spout", new SpoutForSentence(),1);
-		builder.setBolt("spitter", new BoltWordSplitter(),1).shuffleGrouping("spout");
-		builder.setBolt("counter", new BoltWordCounter(),1).fieldsGrouping("spitter", new Fields("word"));
+		
+		builder.setSpout("spout", new SpoutForSentence(),3);
+		builder.setBolt("spitter", new BoltSetOne(),1).shuffleGrouping("spout");
+		builder.setBolt("counter", new BoltSetTwo(),1).shuffleGrouping("spitter");
+		//builder.setBolt("counter", new BoltSetTwo(),1).fieldsGrouping("spitter", new Fields("P"));
+		
+		//builder.setBolt("spitter", new BoltWordSplitter(),3).shuffleGrouping("spout");
+		//builder.setBolt("counter", new BoltWordCounter(),2).fieldsGrouping("spitter", new Fields("word"));
 		
 		LocalCluster cluster = new LocalCluster();
 		cluster.submitTopology("WordCountStorm", config, builder.createTopology());
