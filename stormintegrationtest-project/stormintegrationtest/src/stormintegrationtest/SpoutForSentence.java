@@ -17,6 +17,7 @@
  */
 package stormintegrationtest;
 
+import RDF.RDFTriple;
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
@@ -25,33 +26,64 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
 import backtype.storm.utils.Utils;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
 
 public class SpoutForSentence extends BaseRichSpout {
 	SpoutOutputCollector _collector;
 
-	private int maxLines = 4;
-	private int currentLine = 0;
 
+	Random _rand;
+	BufferedReader _reader;
+	
 	@Override
 	public void open(Map conf, TopologyContext context,
 			SpoutOutputCollector collector) {
 		_collector = collector;
+		_rand = new Random();
+		_reader = MainFile.reader;
 	}
 
 	@Override
 	public void nextTuple() {
-
-		if (currentLine >= maxLines) {
-			Utils.sleep(10000);
-		} else {
-			String sentence = "the cow jumped over the moon an apple a day keeps the doctor away four score and seven years ago snow white and the seven dwarfs";
-			_collector.emit(new Values(sentence));
-			currentLine++;
-		}
+		Utils.sleep(100);
+		generateTuple();
 	}
 
+	public void generateTuple(){
+		try{
+			String tempsString = null;
+			while((tempsString = _reader.readLine())!=null){
+				/*String parts[] = tempsString.split(" +");
+				String Subject = parts[0];				
+				String Predicate = parts[1];
+				String Object = parts[2];
+				RDFTriple rdf = new RDFTriple(Subject, Predicate, Object);
+				rdf.setSubject(Subject);
+				rdf.setPredicate(Predicate);
+				rdf.setObject(Object);
+				_collector.emit(new Values(rdf));*/
+				_collector.emit(new Values(tempsString));
+				
+			}
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			System.out.println("Job is finished of this spout");
+			Utils.sleep(10000);
+		}
+	}
+	
 	@Override
 	public void ack(Object id) {
 	}
@@ -62,7 +94,8 @@ public class SpoutForSentence extends BaseRichSpout {
 
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
-		declarer.declare(new Fields("word"));
+		//declarer.declare(new Fields("RDFtuple"));
+		declarer.declare(new Fields("tuple"));
 	}
 
 }
