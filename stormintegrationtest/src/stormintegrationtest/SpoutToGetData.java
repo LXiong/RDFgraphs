@@ -35,9 +35,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
 
-public class SpoutForSentence extends BaseRichSpout {
+public class SpoutToGetData extends BaseRichSpout {
 	SpoutOutputCollector _collector;
-
 
 	Random _rand;
 	BufferedReader _reader;
@@ -60,16 +59,17 @@ public class SpoutForSentence extends BaseRichSpout {
 		try{
 			String tempsString = null;
 			while((tempsString = _reader.readLine())!=null){
-				/*String parts[] = tempsString.split(" +");
+				String parts[] = tempsString.split(" +");
 				String Subject = parts[0];				
 				String Predicate = parts[1];
 				String Object = parts[2];
+				
 				RDFTriple rdf = new RDFTriple(Subject, Predicate, Object);
 				rdf.setSubject(Subject);
 				rdf.setPredicate(Predicate);
 				rdf.setObject(Object);
-				_collector.emit(new Values(rdf));*/
-				_collector.emit(new Values(tempsString));
+				  
+				_collector.emit(new Values(Subject, Predicate, Object));
 				
 			}
 		} catch (FileNotFoundException e) {
@@ -95,7 +95,8 @@ public class SpoutForSentence extends BaseRichSpout {
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
 		//declarer.declare(new Fields("RDFtuple"));
-		declarer.declare(new Fields("tuple"));
+		declarer.declare(new Fields("Subject","Predicate","Object"));
+		//declarer.declare(new Fields("tuple"));
 	}
 
 }

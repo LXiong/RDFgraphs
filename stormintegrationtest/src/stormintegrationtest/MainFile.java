@@ -66,16 +66,12 @@ public class MainFile {
 		
 		TopologyBuilder builder = new TopologyBuilder();
 		
-		builder.setSpout("spout", new SpoutForSentence(),3);
-		builder.setBolt("spitter", new BoltSetOne(),1).shuffleGrouping("spout");
-		builder.setBolt("counter", new BoltSetTwo(),1).shuffleGrouping("spitter");
-		//builder.setBolt("counter", new BoltSetTwo(),1).fieldsGrouping("spitter", new Fields("P"));
-		
-		//builder.setBolt("spitter", new BoltWordSplitter(),3).shuffleGrouping("spout");
-		//builder.setBolt("counter", new BoltWordCounter(),2).fieldsGrouping("spitter", new Fields("word"));
+		builder.setSpout("spout_getdata", new SpoutToGetData(),1);
+		//builder.setBolt("bolt_formatter", new BoltsFormatter(),2).shuffleGrouping("spout_getdata");
+		builder.setBolt("bolt_bloomfilter", new BoltsCreatBF(),3).fieldsGrouping("spout_getdata", new Fields("Predicate"));
 		
 		LocalCluster cluster = new LocalCluster();
-		cluster.submitTopology("WordCountStorm", config, builder.createTopology());
+		cluster.submitTopology("RDFStorm", config, builder.createTopology());
 		Thread.sleep(10000);
 		
 		cluster.shutdown();
