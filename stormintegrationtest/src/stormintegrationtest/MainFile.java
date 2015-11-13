@@ -66,15 +66,31 @@ public class MainFile {
 		
 		TopologyBuilder builder = new TopologyBuilder();
 		
+		/*
+		 * Spout to read data from file then it emits tuple as (Subject, Predicate, Object)
+		 * Bolts to create bloom filters using fieldsGrouping on Predicate. 
+		 * For now we are creating 3 bloomfilters for each predicate.
+		*/
 		builder.setSpout("spout_getdata", new SpoutToGetData(),1);
-		//builder.setBolt("bolt_formatter", new BoltsFormatter(),2).shuffleGrouping("spout_getdata");
 		builder.setBolt("bolt_bloomfilter", new BoltsCreatBF(),3).fieldsGrouping("spout_getdata", new Fields("Predicate"));
+		
+		/*
+		 * This bolt is optional, but I have shifted code of this file to spout
+		 * now spout is also doing formatting of data.
+		 * builder.setBolt("bolt_formatter", new BoltsFormatter(),2).shuffleGrouping("spout_getdata");
+		 */
 		
 		LocalCluster cluster = new LocalCluster();
 		cluster.submitTopology("RDFStorm", config, builder.createTopology());
 		Thread.sleep(10000);
 		
 		cluster.shutdown();
+		
+		/* Result like this
+		Bloom Filter with Predicate = Work has values = 11
+		Bloom Filter with Predicate = Paper has values = 5
+		Bloom Filter with Predicate = Diplome has values = 13
+		*/
 	}
 	
 
